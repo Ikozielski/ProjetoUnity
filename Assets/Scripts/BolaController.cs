@@ -3,8 +3,9 @@ using UnityEngine;
 public class BolaController : MonoBehaviour
 {
     public float velocidadeInicial = 5f;
-    public float incrementoPorToque = 0.01f; // 1% por toque na raquete
+    public float incrementoPorToque = 0.02f; // 2% por toque na raquete
     public float cooldownToque = 0.1f;
+    public float desvioMaximo = 2f; // graus de desvio aleatorio no angulo do rebote
 
     Rigidbody2D rb;
     float ultimoToque = -1f;
@@ -43,7 +44,14 @@ public class BolaController : MonoBehaviour
 
         if (colisao.gameObject.CompareTag("Raquete") || colisao.gameObject.CompareTag("Parede"))
         {
-            rb.linearVelocity *= (1f + incrementoPorToque);
+            Vector2 direcao = rb.linearVelocity.normalized;
+            float velocidade = rb.linearVelocity.magnitude * (1f + incrementoPorToque);
+
+            float angulo = Mathf.Atan2(direcao.y, direcao.x) * Mathf.Rad2Deg;
+            angulo += Random.Range(-desvioMaximo, desvioMaximo);
+            float radianos = angulo * Mathf.Deg2Rad;
+
+            rb.linearVelocity = new Vector2(Mathf.Cos(radianos), Mathf.Sin(radianos)) * velocidade;
         }
     }
 
